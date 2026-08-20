@@ -1,0 +1,240 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#010402"><title>Mission Lifeline // Mission Control</title><style>
+:root{--bg:#010402;--panel:#06110a;--line:#174d26;--green:#00ff66;--green2:#8dffac;--dim:#4a815b;--text:#d8ffe4;--red:#ff4d67;--yellow:#d7ff4f}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#010402;color:var(--text)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,255,102,.028) 0 1px,transparent 1px 4px);z-index:20}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 120px #000;z-index:21}
+#matrix{position:fixed;inset:0;opacity:.14;z-index:-1}.wrap{max-width:1320px;margin:auto;padding:18px}
+.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:16px;gap:15px}.brand{font-size:24px;font-weight:950;color:var(--green);letter-spacing:.09em;text-shadow:0 0 14px #00ff6666}.sub{font-size:11px;color:var(--dim);margin-top:5px}.clock{font-size:12px;color:var(--green2)}
+button{font:inherit;font-weight:900;border:1px solid #19713a;background:#06170b;color:var(--green2);padding:11px 14px;border-radius:4px;cursor:pointer;text-transform:uppercase}
+button.primary{background:#0b3b18;color:#caffd4}.warn{color:var(--yellow)!important;border-color:#607116!important}.danger{color:#ff7a8d!important;border-color:#7b1f31!important;background:#210810!important}
+.card{background:linear-gradient(145deg,#06140af2,#020805f2);border:1px solid var(--line);padding:20px;border-radius:6px;box-shadow:0 0 30px #00ff6610}.hero{padding:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:13px}.hidden{display:none!important}.title{font-size:20px;font-weight:900;color:var(--green)}.big{font-size:44px;font-weight:950;color:var(--green)}
+.muted{color:var(--dim)}.small{font-size:11px}.terminal{background:#000801;border:1px solid #0d3a1a;padding:14px;border-radius:4px;line-height:1.6;white-space:pre-wrap}
+.status{display:inline-block;padding:4px 7px;border:1px solid currentColor;border-radius:3px;font-size:10px;font-weight:900}.online{color:var(--green)}.locked{color:#557060}.warnc{color:var(--yellow)}.red{color:var(--red)}
+.progress{height:8px;background:#07170b;border:1px solid #164d25}.progress>div{height:100%;background:var(--green);box-shadow:0 0 12px #00ff66}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.core{padding:14px;border:1px solid #123f1f;background:#041008;margin:8px 0}.core b{display:block;color:var(--green2);margin-bottom:5px}
+input,select,textarea{width:100%;background:#010703;border:1px solid #1b5a2c;color:var(--text);padding:12px;border-radius:3px;font:inherit;margin:6px 0 12px}textarea{min-height:100px;resize:vertical}
+label{font-size:11px;color:var(--dim);display:block;margin-top:8px}.pin{letter-spacing:.45em;text-align:center;font-size:25px}.matrix-table{width:100%;border-collapse:collapse;font-size:12px}.matrix-table th,.matrix-table td{border:1px solid #164d25;padding:8px;text-align:center}.matrix-table th{color:var(--green2);background:#07140a}.matrix-table td input,.matrix-table td select{margin:0;padding:7px;min-width:125px}
+.live-dot{width:14px;height:14px;border-radius:50%;background:#27332b;border:1px solid #54645a;display:inline-block}.live-dot.on{background:var(--green);box-shadow:0 0 18px #00ff66;animation:pulse 1.15s infinite}.online-card{border-color:#00ff66;box-shadow:0 0 34px #00ff6635}
+@keyframes pulse{50%{opacity:.45;transform:scale(.83)}}.global-online{text-align:center;border-color:#00ff66;box-shadow:0 0 60px #00ff6640}
+.notice{position:fixed;right:8px;bottom:8px;z-index:30;font-size:10px;padding:6px 8px;border:1px solid #174d26;background:#020805;color:#5fa572;border-radius:3px}
+.footer{text-align:center;color:#315c3d;font-size:10px;margin:26px 0}
+@media(max-width:650px){.brand{font-size:17px}.big{font-size:35px}.wrap{padding:10px}.hero{padding:19px}}
+</style></head>
+<body><canvas id="matrix"></canvas><div class="wrap">
+<header class="top"><div><div class="brand">MISSION LIFELINE // MISSION CONTROL</div><div class="sub">GAME MASTER REALTIME DASHBOARD</div></div><div class="clock" id="clock">--:--:--</div></header>
+<section id="login" class="card hero"><div class="title">&gt;&gt; GAME MASTER LOGIN</div><label>E-Mail</label><input id="email" type="email"><label>Passwort</label><input id="password" type="password"><button id="loginBtn" class="primary" type="button">LOGIN</button><div id="loginMsg"></div>
+<div class="terminal small" style="margin-top:12px">DIAGNOSTIC
+PROJECT: lifeline-25064
+EXPECTED GAME MASTER: wolf@horizonte-ggmbh.com
+REQUIRED PROVIDER: Email/Password</div></section>
+<section id="dashboard" class="hidden"></section></div><div id="net" class="notice">CONNECTING...</div><div class="footer">V9.8 MULTIPLAYER MISSION CONTROL</div>
+<script type="module">
+import { firebaseConfig, gameMasterEmail } from "./firebase-config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
+import { getDatabase, ref, get, set, update, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
+const $=id=>document.getElementById(id),TEAM_NAMES=["ALPHA","BRAVO","CHARLIE","DELTA","ECHO","FOXTROT"];
+let db,auth,user=null,priv=null,pub=null,states={},globalState=null,countdownWritePending=false;
+const DEFAULT_PRIVATE={countdownSeconds:10,
+ teams:{ALPHA:{pin:"3817"},BRAVO:{pin:"6042"},CHARLIE:{pin:"9153"},DELTA:{pin:"2478"},ECHO:{pin:"5361"},FOXTROT:{pin:"8294"}},
+ cores:[
+  {name:"NAVIGATION CORE",message:"Löst die physische Aufgabe vor Ort und gebt anschließend den Code ein."},
+  {name:"LIFELINE CORE",message:"Arbeitet als Team und sichert den nächsten Zugangscode."},
+  {name:"STABILITY CORE",message:"Die Systemstabilität ist kritisch. Löst die Aufgabe und übermittelt den Code."},
+  {name:"BREACH CORE",message:"Absolviert die physische Mission und gebt anschließend den Code ein."},
+  {name:"TRANSFER CORE",message:"Löst die Aufgabe an eurem Einsatzort und bestätigt den Code."},
+  {name:"VELOCITY CORE",message:"Absolviert die finale physische Herausforderung."}
+ ],
+ routes:{ALPHA:[0,1,2,3,4,5],BRAVO:[1,2,3,4,5,0],CHARLIE:[2,3,4,5,0,1],DELTA:[3,4,5,0,1,2],ECHO:[4,5,0,1,2,3],FOXTROT:[5,0,1,2,3,4]},
+ answers:{ALPHA:["1","32","12","25","6","8"],BRAVO:["1","32","12","25","6","8"],CHARLIE:["1","32","12","25","6","8"],DELTA:["1","32","12","25","6","8"],ECHO:["1","32","12","25","6","8"],FOXTROT:["1","32","12","25","6","8"]},
+ fragments:{ALPHA:["N7","L4","S2","B9","T3","V5"],BRAVO:["N7","L4","S2","B9","T3","V5"],CHARLIE:["N7","L4","S2","B9","T3","V5"],DELTA:["N7","L4","S2","B9","T3","V5"],ECHO:["N7","L4","S2","B9","T3","V5"],FOXTROT:["N7","L4","S2","B9","T3","V5"]},
+ finals:{ALPHA:"LIFE-A1",BRAVO:"LIFE-B2",CHARLIE:"LIFE-C3",DELTA:"LIFE-D4",ECHO:"LIFE-E5",FOXTROT:"LIFE-F6"},
+ run:{runId:Date.now(),countdown:{startAt:null,duration:10}}
+};
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+async function sha(text){const data=new TextEncoder().encode(String(text));const digest=await crypto.subtle.digest("SHA-256",data);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("")}
+function emptyState(runId=0){return {started:false,step:0,done:[],fragments:[],hints:0,penalty:0,online:false,runId,lastUpdate:0}}
+async function makePublic(p){
+ const teamPinHashes={},answerHashes={},finalHashes={};
+ for(const n of TEAM_NAMES){teamPinHashes[n]=await sha(p.teams[n].pin);answerHashes[n]=[];for(const a of p.answers[n])answerHashes[n].push(await sha(String(a).toUpperCase()));finalHashes[n]=await sha(String(p.finals[n]).toUpperCase())}
+ return {cores:p.cores,routes:p.routes,teamPinHashes,answerHashes,fragments:p.fragments,finalHashes,countdownSeconds:Number(p.countdownSeconds||10)};
+}
+async function boot(){
+ try{
+  if(!firebaseConfig.apiKey||firebaseConfig.apiKey.includes("HIER_"))throw new Error("Firebase-Konfiguration fehlt");
+  const app=initializeApp(firebaseConfig);db=getDatabase(app);auth=getAuth(app);$("email").value=gameMasterEmail||"";
+  onAuthStateChanged(auth,async u=>{
+    user=u;
+    if(!u){
+      connected=false;
+      $("login").classList.remove("hidden");
+      $("dashboard").classList.add("hidden");
+      $("net").textContent="READY FOR LOGIN";
+      return;
+    }
+    const expectedEmail=String(gameMasterEmail||"").toLowerCase();
+    const actualEmail=String(u.email||"").toLowerCase();
+    if(u.isAnonymous || !actualEmail || actualEmail!==expectedEmail){
+      connected=false;
+      try{await signOut(auth)}catch(e){console.warn(e)}
+      $("login").classList.remove("hidden");
+      $("dashboard").classList.add("hidden");
+      $("net").textContent="GAME MASTER LOGIN REQUIRED";
+      return;
+    }
+    connect();
+  });
+  $("net").textContent="READY FOR LOGIN";
+ }catch(e){$("net").textContent="ERROR";$("loginMsg").innerHTML='<div class="terminal red">'+esc(e.message)+'</div>'}
+}
+async function login(){
+ const email=$("email").value.trim();
+ const password=$("password").value;
+ $("loginMsg").innerHTML='<div class="terminal warnc">LOGIN REQUEST SENT...</div>';
+ try{
+   const cred=await signInWithEmailAndPassword(auth,email,password);
+   $("loginMsg").innerHTML='<div class="terminal online">AUTHENTICATION SUCCESSFUL // '+esc(cred.user.email||"")+'</div>';
+ }catch(e){
+   console.error("Firebase login error",e);
+   const code=String(e.code||"unknown");
+   const msg=String(e.message||e);
+   $("loginMsg").innerHTML='<div class="terminal red">LOGIN FAILED\nERROR CODE: '+esc(code)+'\nDETAIL: '+esc(msg)+'\nPROJECT: lifeline-25064</div>';
+ }
+}
+let connected=false;
+async function connect(){
+ const expectedEmail=String(gameMasterEmail||"").toLowerCase();
+ const actualEmail=String(user?.email||"").toLowerCase();
+ if(!user || user.isAnonymous || !actualEmail || actualEmail!==expectedEmail){
+   connected=false;
+   $("login").classList.remove("hidden");
+   $("dashboard").classList.add("hidden");
+   $("net").textContent="GAME MASTER LOGIN REQUIRED";
+   return;
+ }
+ if(connected)return;
+ connected=true;
+ $("login").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+ $("net").textContent="REALTIME CONNECTED";
+ onValue(ref(db,"mission/privateConfig"),snap=>{priv=snap.val();if(!priv)renderInit();else render()});
+ onValue(ref(db,"mission/publicConfig"),snap=>{pub=snap.val();render()});
+ onValue(ref(db,"mission/teams"),snap=>{states=snap.val()||{};render();maybeStartGlobalCountdown()});
+ onValue(ref(db,"mission/globalState"),snap=>{globalState=snap.val()||null;render()});
+}
+async function maybeStartCountdown(){
+ if(!priv||countdownStartInFlight)return;
+ const allOnline=TEAM_NAMES.every(n=>(states[n]||{}).online===true);
+ const alreadyStarted=Number(priv?.run?.countdown?.startAt||0)>0;
+ if(!allOnline||alreadyStarted)return;
+
+ countdownStartInFlight=true;
+ try{
+   const duration=Math.max(3,Number(priv?.run?.countdown?.duration||10));
+   const p=JSON.parse(JSON.stringify(priv));
+   p.run={...(p.run||{}),countdown:{startAt:Date.now()+3000,duration}};
+   await syncPrivate(p);
+ }catch(e){
+   console.error("Countdown start failed",e);
+   alert("Countdown konnte nicht gestartet werden: "+e.message);
+ }finally{
+   countdownStartInFlight=false;
+ }
+}
+
+function renderInit(){$("dashboard").innerHTML='<div class="card hero"><div class="title">&gt;&gt; FIRST START</div><p class="muted">Noch keine Mission vorhanden.</p><button id="initBtn" class="primary" type="button">INITIALIZE MISSION</button></div>';$("initBtn").onclick=initializeMission}
+async function initializeMission(){
+ const p=JSON.parse(JSON.stringify(DEFAULT_PRIVATE)),publicCfg=await makePublic(p),runId=Date.now(),teamStates={};TEAM_NAMES.forEach(n=>teamStates[n]=emptyState(runId));
+ await set(ref(db,"mission/privateConfig"),p);await set(ref(db,"mission/publicConfig"),publicCfg);await set(ref(db,"mission/globalState"),{runId,countdownStartedAt:0,missionComplete:false});await Promise.all(TEAM_NAMES.map(n=>set(ref(db,"mission/teams/"+n),teamStates[n])));
+}
+function st(n){return states[n]||emptyState()} function route(n){return priv?.routes?.[n]||[0,1,2,3,4,5]} function idx(n){const s=st(n),r=route(n);return s.step<r.length?r[s.step]:null}
+async function maybeStartGlobalCountdown(){
+ if(!user||!priv||!states||countdownWritePending)return;
+ const online=TEAM_NAMES.filter(n=>st(n).online).length;
+ if(online!==6)return;
+ if(globalState&&Number(globalState.countdownStartedAt||0)>0)return;
+ countdownWritePending=true;
+ try{
+   await update(ref(db,"mission/globalState"),{countdownStartedAt:serverTimestamp(),missionComplete:false});
+   $("net").textContent="COUNTDOWN STARTED";
+ }catch(e){
+   console.error("Countdown start failed",e);
+   $("net").textContent="COUNTDOWN ERROR: "+String(e.code||e.message||e);
+   $("net").style.color="#ff7083";
+ }finally{countdownWritePending=false}
+}
+function countdownStatusHtml(){
+ if(!globalState||!globalState.countdownStartedAt)return "";
+ const seconds=Number(priv?.countdownSeconds||10),elapsed=Math.max(0,Date.now()-Number(globalState.countdownStartedAt)),remaining=Math.ceil(seconds-elapsed/1000);
+ if(remaining<=0)return '<div class="card hero global-online"><div class="title">&gt;&gt; GLOBAL LIFELINE RESTORED</div><div class="big">MISSION COMPLETE</div><p class="online">6 / 6 FIELD UNITS ONLINE</p></div>';
+ return `<div class="card hero global-online"><div class="title">&gt;&gt; FINAL COUNTDOWN ACTIVE</div><div class="big">${remaining}</div><p class="online">6 / 6 FIELD UNITS ONLINE</p></div>`;
+}
+function render(){
+ if(!priv)return;
+ const online=TEAM_NAMES.filter(n=>st(n).online).length;
+ $("dashboard").innerHTML=`${countdownStatusHtml()}
+ <div class="card hero"><div class="title">LIVE MISSION CONTROL</div><div class="terminal">FIELD UNITS ONLINE: ${online} / 6
+COUNTDOWN: ${Number(priv?.run?.countdown?.startAt||0)>0?"STARTED":"WAITING"}</div></div>
+ <div class="card" style="margin-top:14px">
+  <div class="title">FINAL COUNTDOWN</div>
+  <label>Countdown-Dauer in Sekunden</label>
+  <input id="countdownDuration" type="number" min="3" max="60" value="${Math.max(3,Number(priv?.run?.countdown?.duration||10))}">
+  <button id="saveCountdownDuration">SAVE COUNTDOWN DURATION</button>
+ </div>
+ <div class="grid" style="margin-top:14px">${TEAM_NAMES.map(n=>{const s=st(n),i=idx(n),c=i===null?null:priv.cores[i];return `<div class="card ${s.online?"online-card":""}"><div class="row"><div class="title">${n}</div><div style="flex:0"><span class="live-dot ${s.online?"on":""}"></span></div></div><div class="${s.online?"online":"muted"}" style="font-size:20px;font-weight:900;margin:8px 0">${s.online?"ONLINE":s.started?"ACTIVE":"OFFLINE"}</div><p><b>${s.step}/6</b> • ${c?esc(c.name):"FINAL ACCESS"}</p><div class="progress"><div style="width:${s.step/6*100}%"></div></div><p class="small muted">Hints: ${s.hints||0} • Penalty: ${s.penalty||0} min</p><div class="row"><button data-next="${n}" type="button">FORCE NEXT</button><button data-reset="${n}" class="danger" type="button">RESET TEAM</button></div></div>`}).join("")}</div>
+ <div class="card" style="margin-top:14px"><div class="title">TEAM ACCESS CODES</div>${TEAM_NAMES.map(n=>`<div class="core"><b>${n}</b><input id="pin_${n}" maxlength="4" value="${esc(priv.teams[n].pin)}"></div>`).join("")}<button id="savePins">SAVE TEAM CODES</button></div>
+ <div class="card" style="margin-top:14px"><div class="title">WECHSELMATRIX</div><div style="overflow:auto"><table class="matrix-table"><thead><tr><th>TEAM</th>${[1,2,3,4,5,6].map(i=>`<th>POS ${i}</th>`).join("")}</tr></thead><tbody>${TEAM_NAMES.map(n=>`<tr><th>${n}</th>${priv.routes[n].map((v,p)=>`<td><select id="r_${n}_${p}">${priv.cores.map((c,i)=>`<option value="${i}" ${i===v?"selected":""}>${esc(c.name)}</option>`).join("")}</select></td>`).join("")}</tr>`).join("")}</tbody></table></div><button id="saveRoutes">SAVE WECHSELMATRIX</button></div>
+ <div class="card" style="margin-top:14px"><div class="title">TEAM-SPECIFIC SOLUTIONS</div><div style="overflow:auto"><table class="matrix-table"><thead><tr><th>TEAM</th>${priv.cores.map(c=>`<th>${esc(c.name)}</th>`).join("")}</tr></thead><tbody>${TEAM_NAMES.map(n=>`<tr><th>${n}</th>${priv.answers[n].map((v,i)=>`<td><input id="a_${n}_${i}" value="${esc(v)}"></td>`).join("")}</tr>`).join("")}</tbody></table></div><button id="saveAnswers">SAVE SOLUTIONS</button></div>
+ <div class="card" style="margin-top:14px"><div class="title">TEAM-SPECIFIC FRAGMENTS</div><div style="overflow:auto"><table class="matrix-table"><thead><tr><th>TEAM</th>${priv.cores.map(c=>`<th>${esc(c.name)}</th>`).join("")}</tr></thead><tbody>${TEAM_NAMES.map(n=>`<tr><th>${n}</th>${priv.fragments[n].map((v,i)=>`<td><input id="f_${n}_${i}" value="${esc(v)}"></td>`).join("")}</tr>`).join("")}</tbody></table></div><button id="saveFragments">SAVE FRAGMENTS</button></div>
+ <div class="card" style="margin-top:14px"><div class="title">FINAL LIFELINE CODES</div>${TEAM_NAMES.map(n=>`<div class="core"><b>${n}</b><input id="fin_${n}" value="${esc(priv.finals[n])}"></div>`).join("")}<button id="saveFinals">SAVE FINAL CODES</button></div>
+ <div class="card" style="margin-top:14px"><div class="title">CORE MESSAGES</div>${priv.cores.map((c,i)=>`<div class="core"><b>CORE ${i+1}</b><label>Name</label><input id="cn_${i}" value="${esc(c.name)}"><label>System Message</label><textarea id="cm_${i}">${esc(c.message)}</textarea></div>`).join("")}<button id="saveCores">SAVE CORE MESSAGES</button></div>
+ <div class="card" style="margin-top:14px"><div class="title">FINAL COUNTDOWN</div><label>Countdown in Sekunden</label><input id="countdownSeconds" type="number" min="3" max="60" value="${Number(priv.countdownSeconds||10)}"><button id="saveCountdown">SAVE COUNTDOWN</button></div>
+ <div class="card" style="margin-top:14px"><div class="row"><button id="resetAll" class="danger">START NEW MISSION / RESET ALL</button><button id="logout">LOGOUT</button></div></div>`;
+ document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>forceNext(b.dataset.next));document.querySelectorAll("[data-reset]").forEach(b=>b.onclick=()=>resetTeam(b.dataset.reset));
+ $("saveCountdownDuration").onclick=saveCountdownDuration;$("savePins").onclick=savePins;$("saveCountdown").onclick=saveCountdown;$("saveRoutes").onclick=saveRoutes;$("saveAnswers").onclick=saveAnswers;$("saveFragments").onclick=saveFragments;$("saveFinals").onclick=saveFinals;$("saveCores").onclick=saveCores;$("resetAll").onclick=resetAll;$("logout").onclick=async()=>{connected=false;await signOut(auth);};
+}
+async function saveCountdown(){const p=JSON.parse(JSON.stringify(priv));const s=Math.max(3,Math.min(60,Number($("countdownSeconds").value||10)));p.countdownSeconds=s;await syncPrivate(p)}
+async function syncPrivate(p){priv=p;const pubCfg=await makePublic(p);await set(ref(db,"mission/privateConfig"),p);await set(ref(db,"mission/publicConfig"),pubCfg)}
+async function saveCountdownDuration(){
+ const p=JSON.parse(JSON.stringify(priv));
+ const duration=Math.max(3,Math.min(60,Number($("countdownDuration").value||10)));
+ p.run=p.run||{runId:Date.now(),countdown:{startAt:null,duration}};
+ p.run.countdown=p.run.countdown||{startAt:null,duration};
+ p.run.countdown.duration=duration;
+ await syncPrivate(p);
+}
+async function savePins(){const p=JSON.parse(JSON.stringify(priv)),vals=TEAM_NAMES.map(n=>$("pin_"+n).value.trim());if(vals.some(v=>!/^[0-9]{4}$/.test(v))||new Set(vals).size!==6){alert("Codes müssen eindeutig und vierstellig sein.");return}TEAM_NAMES.forEach((n,i)=>p.teams[n].pin=vals[i]);await syncPrivate(p)}
+async function saveRoutes(){const p=JSON.parse(JSON.stringify(priv));for(const n of TEAM_NAMES){const a=[0,1,2,3,4,5].map(i=>Number($("r_"+n+"_"+i).value));if(new Set(a).size!==6){alert("Jeder Core muss genau einmal vorkommen.");return}p.routes[n]=a}await syncPrivate(p)}
+async function saveAnswers(){const p=JSON.parse(JSON.stringify(priv));TEAM_NAMES.forEach(n=>p.answers[n]=p.cores.map((_,i)=>$("a_"+n+"_"+i).value.trim()));await syncPrivate(p)}
+async function saveFragments(){const p=JSON.parse(JSON.stringify(priv));TEAM_NAMES.forEach(n=>p.fragments[n]=p.cores.map((_,i)=>$("f_"+n+"_"+i).value.trim()));await syncPrivate(p)}
+async function saveFinals(){const p=JSON.parse(JSON.stringify(priv));TEAM_NAMES.forEach(n=>p.finals[n]=$("fin_"+n).value.trim());await syncPrivate(p)}
+async function saveCores(){const p=JSON.parse(JSON.stringify(priv));p.cores=p.cores.map((c,i)=>({name:$("cn_"+i).value.trim(),message:$("cm_"+i).value.trim()}));await syncPrivate(p)}
+async function forceNext(n){const s=st(n),i=idx(n);if(i===null)return;const done=[...(s.done||[])];if(!done.includes(i))done.push(i);await update(ref(db,"mission/teams/"+n),{done,fragments:[...(s.fragments||[]),priv.fragments[n][i]],step:s.step+1,lastUpdate:serverTimestamp()})}
+async function resetTeam(n){if(confirm("Team "+n+" zurücksetzen?"))await set(ref(db,"mission/teams/"+n),emptyState())}
+async function resetAll(){
+ if(!confirm("Alle Teamstände zurücksetzen und neue Mission starten?"))return;
+ const all={};
+ TEAM_NAMES.forEach(n=>all[n]=emptyState());
+ const p=JSON.parse(JSON.stringify(priv));
+ p.run={runId:Date.now(),countdown:{startAt:null,duration:Math.max(3,Number(priv?.run?.countdown?.duration||10))}};
+ try{
+   await set(ref(db,"mission/teams"),all);
+   await syncPrivate(p);
+   alert("Neue Mission gestartet. Alle Teams wurden zurückgesetzt.");
+ }catch(e){
+   console.error(e);
+   alert("Reset fehlgeschlagen: "+e.message);
+ }
+}
+$("loginBtn").onclick=login;$("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});function tick(){$("clock").textContent=new Date().toLocaleTimeString("de-DE")}tick();setInterval(tick,1000);setInterval(()=>{if(globalState&&globalState.countdownStartedAt)render()},250);
+
+function startMatrix(){
+ const c=document.getElementById("matrix"),x=c.getContext("2d"),chars="01アイウエオABCDEFGHIJKLMNOPQRSTUVWXYZ#$%",size=15;let drops=[];
+ function resize(){c.width=innerWidth;c.height=innerHeight;drops=Array(Math.max(1,Math.floor(c.width/size))).fill(1)}
+ resize();addEventListener("resize",resize);
+ function f(){x.fillStyle="rgba(1,3,1,.10)";x.fillRect(0,0,c.width,c.height);x.fillStyle="#00ff66";x.font=size+"px monospace";drops.forEach((y,i)=>{x.fillText(chars[Math.floor(Math.random()*chars.length)],i*size,y*size);if(y*size>c.height&&Math.random()>.975)drops[i]=0;drops[i]++});requestAnimationFrame(f)}f()
+}
+
+startMatrix();boot();
+</script></body></html>
