@@ -15,4 +15,4 @@ export const firebaseConfig = {
 
 // Muss exakt der E-Mail entsprechen, die du in Firebase Authentication
 // als Game-Master-Benutzer anlegst.
-export const gameMasterEmail = "gamemaster@example.com";
+export const gameMasterEmail = "wolf@horizonte-ggmbh.com";
