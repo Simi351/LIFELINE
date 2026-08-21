@@ -1,0 +1,145 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#010402"><title>Mission Lifeline V11 // Mission Control</title><style>
+:root{--bg:#010402;--panel:#06110a;--line:#174d26;--green:#00ff66;--green2:#8dffac;--dim:#4a815b;--text:#d8ffe4;--red:#ff4d67;--yellow:#d7ff4f}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#010402;color:var(--text)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,255,102,.025) 0 1px,transparent 1px 4px);z-index:20}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 120px #000;z-index:21}
+#matrix{position:fixed;inset:0;opacity:.13;z-index:-1}.wrap{max-width:1320px;margin:auto;padding:18px}
+.top{display:flex;justify-content:space-between;gap:15px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:16px}.brand{font-size:24px;font-weight:950;color:var(--green);letter-spacing:.09em;text-shadow:0 0 14px #00ff6660}.sub{font-size:11px;color:var(--dim);margin-top:4px}.clock{font-size:12px;color:var(--green2)}
+button{font:inherit;font-weight:900;border:1px solid #19713a;background:#06170b;color:var(--green2);padding:11px 14px;border-radius:4px;cursor:pointer;text-transform:uppercase}
+button.primary{background:#0b3b18;color:#caffd4}.danger{color:#ff7a8d;border-color:#7b1f31;background:#210810}.warn{color:var(--yellow);border-color:#64731a}
+.card{background:linear-gradient(145deg,#06140af2,#020805f2);border:1px solid var(--line);padding:20px;border-radius:6px;box-shadow:0 0 30px #00ff6610}.hero{padding:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:13px}.hidden{display:none!important}.title{font-size:20px;font-weight:900;color:var(--green)}.big{font-size:44px;font-weight:950;color:var(--green)}
+.muted{color:var(--dim)}.small{font-size:11px}.terminal{background:#000801;border:1px solid #0d3a1a;padding:14px;border-radius:4px;line-height:1.6;white-space:pre-wrap}
+.status{display:inline-block;padding:4px 7px;border:1px solid currentColor;border-radius:3px;font-size:10px;font-weight:900}.online{color:var(--green)}.locked{color:#557060}.warnc{color:var(--yellow)}.red{color:var(--red)}
+.progress{height:8px;background:#07170b;border:1px solid #164d25}.progress>div{height:100%;background:var(--green);box-shadow:0 0 12px #00ff66}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.core{padding:14px;border:1px solid #123f1f;background:#041008;margin:8px 0}.core b{display:block;color:var(--green2);margin-bottom:5px}
+input,select,textarea{width:100%;background:#010703;border:1px solid #1b5a2c;color:var(--text);padding:12px;border-radius:3px;font:inherit;margin:6px 0 12px}textarea{min-height:100px;resize:vertical}
+label{font-size:11px;color:var(--dim);display:block;margin-top:8px}.pin{letter-spacing:.45em;text-align:center;font-size:25px}
+.matrix-table{width:100%;border-collapse:collapse;font-size:12px}.matrix-table th,.matrix-table td{border:1px solid #164d25;padding:8px;text-align:center}.matrix-table th{color:var(--green2);background:#07140a}.matrix-table td input,.matrix-table td select{margin:0;padding:7px;min-width:120px}
+.live-dot{width:14px;height:14px;border-radius:50%;background:#27332b;border:1px solid #54645a;display:inline-block}.live-dot.on{background:var(--green);box-shadow:0 0 18px #00ff66;animation:pulse 1.1s infinite}.online-card{border-color:#00ff66;box-shadow:0 0 34px #00ff6635}
+@keyframes pulse{50%{opacity:.45;transform:scale(.83)}}.countdown{font-size:min(28vw,170px);font-weight:950;color:var(--green);text-shadow:0 0 30px #00ff66;line-height:1}.global{text-align:center;border-color:#00ff66;box-shadow:0 0 60px #00ff6635}
+.notice{position:fixed;right:8px;bottom:8px;z-index:30;font-size:10px;padding:6px 8px;border:1px solid #174d26;background:#020805;color:#5fa572;border-radius:3px}.footer{text-align:center;color:#315c3d;font-size:10px;margin:26px 0}
+@media(max-width:650px){.brand{font-size:17px}.big{font-size:35px}.wrap{padding:10px}.hero{padding:19px}}
+
+/* Horizonte gGmbH x MATRIX visual layer — presentation only, no mission logic */
+:root{
+  --hz-cyan:#55e6c1;
+  --hz-cyan-soft:#9ff5df;
+  --hz-graphite:#111a15;
+  --hz-sage:#81998b;
+  --hz-white:#edf7f0;
+}
+html,body{background:
+  radial-gradient(circle at 82% 12%,rgba(85,230,193,.10),transparent 25%),
+  radial-gradient(circle at 16% 80%,rgba(0,255,102,.07),transparent 30%),
+  #050708;color:#eaf2ed}
+body:before{background:
+  linear-gradient(90deg,transparent 0 49.8%,rgba(85,230,193,.025) 50%,transparent 50.2%),
+  repeating-linear-gradient(0deg,rgba(0,255,102,.018) 0 1px,transparent 1px 4px)}
+#matrix{opacity:.10;filter:saturate(.78)}
+.wrap{position:relative}
+.wrap:before{content:"HORIZONTE gGmbH // EXPERIENCE SYSTEM INTERFACE";display:block;margin:0 0 10px;padding:5px 10px;border-left:3px solid var(--hz-cyan);font-size:9px;letter-spacing:.22em;color:#aab0b5;background:linear-gradient(90deg,rgba(85,230,193,.08),transparent 45%)}
+.top{border-bottom:1px solid #42474c;position:relative;padding:12px 0 17px}
+.top:after{content:"";position:absolute;left:0;bottom:-1px;width:132px;height:2px;background:var(--hz-cyan);box-shadow:0 0 14px rgba(85,230,193,.45)}
+.brand{display:flex;align-items:center;gap:13px;color:var(--hz-white);text-shadow:none;letter-spacing:.055em}
+.brand:before{content:"H";display:grid;place-items:center;width:46px;height:46px;border:1px solid var(--hz-cyan);border-radius:4px;font-family:Arial,sans-serif;font-size:21px;font-weight:900;letter-spacing:0;color:var(--green);box-shadow:inset 0 0 18px rgba(0,255,102,.08),0 0 24px rgba(85,230,193,.12)}
+.brand:after{content:"HORIZONTE";font-family:Arial,sans-serif;font-style:normal;font-weight:900;letter-spacing:.04em;color:var(--hz-white);font-size:.82em}
+.brand .mission-name{color:#00ff66;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-style:normal;font-size:.66em;letter-spacing:.12em;padding-left:4px}
+.sub{color:#8f969c;letter-spacing:.16em;text-transform:uppercase}.clock{color:var(--hz-cyan-soft);font-weight:800;letter-spacing:.08em}
+.card{background:linear-gradient(145deg,rgba(20,24,24,.96),rgba(4,9,6,.96));border-color:#303b35;box-shadow:0 14px 45px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.015)}
+.card.hero{position:relative;overflow:hidden}.card.hero:before{content:"";position:absolute;left:0;top:0;width:5px;height:100%;background:linear-gradient(var(--hz-cyan),#00ff66)}
+.title{color:#b8ffc9;letter-spacing:.035em}.big{color:#f5f7f8;text-shadow:0 0 26px rgba(0,255,102,.25)}
+button{border-color:#3e4b43;background:linear-gradient(#101813,#09110d);color:#baffc9;transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease}
+button:hover{border-color:var(--hz-cyan);box-shadow:0 0 0 1px rgba(85,230,193,.15),0 8px 24px rgba(0,0,0,.25);transform:translateY(-1px)}
+button.primary{background:linear-gradient(135deg,#0d3c20,#111d16);border-color:#25834b;color:#eaffef;box-shadow:inset 3px 0 var(--hz-cyan)}
+input,select,textarea{background:#070b09;border-color:#38433d;color:#edf3ef;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--hz-cyan);box-shadow:0 0 0 2px rgba(85,230,193,.10)}
+.terminal{background:linear-gradient(90deg,#030806,#090d0b);border-color:#34413a;box-shadow:inset 3px 0 var(--hz-cyan)}
+.core{border-color:#303c35;background:linear-gradient(90deg,rgba(85,230,193,.035),rgba(0,255,102,.025))}
+.progress{background:#090d0a;border-color:#344039}.progress>div{background:linear-gradient(90deg,var(--hz-cyan),#00ff66);box-shadow:0 0 14px rgba(0,255,102,.35)}
+.matrix-table th,.matrix-table td{border-color:#343d38}.matrix-table th{background:#101512;color:#d7ffe0}
+.live-dot.on{background:#00ff66;border-color:#d5ffe0;box-shadow:0 0 18px #00ff66}.online-card{border-color:#4c735a;box-shadow:0 0 0 1px rgba(85,230,193,.16),0 0 34px rgba(0,255,102,.12)}
+.global{border-color:#53675a;box-shadow:0 0 0 1px rgba(85,230,193,.20),0 0 60px rgba(0,255,102,.13)}
+.notice{border-color:#3c4741;background:#070b09;color:#83ae90;border-left:3px solid var(--hz-cyan)}
+.footer{color:#60686d;letter-spacing:.14em}.footer:before{content:"HORIZONTE gGmbH • ESSLINGEN • ";color:#aeb4b8}
+.countdown{background:linear-gradient(180deg,#f6f7f8,#69ff92);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 34px rgba(0,255,102,.25)}
+@media(max-width:650px){.brand{gap:8px}.brand:before{width:36px;height:36px;font-size:15px}.brand:after{font-size:.74em}.brand .mission-name{font-size:.55em}.wrap:before{font-size:7px;letter-spacing:.14em}}
+
+</style></head>
+<body><canvas id="matrix"></canvas><div class="wrap"><header class="top"><div><div class="brand"><span class="mission-name">MISSION LIFELINE // MISSION CONTROL</span></div><div class="sub">Erlebnisreich lernen // Esslingen am Neckar // Matrix Protocol</div></div><div class="clock" id="clock">--:--:--</div></header>
+<section id="login" class="card hero"><div class="title">&gt;&gt; GAME MASTER LOGIN</div><label>E-Mail</label><input id="email" type="email" value="wolf@horizonte-ggmbh.com"><label>Passwort</label><input id="password" type="password"><button id="loginBtn" class="primary">LOGIN</button><div id="loginMsg"></div></section>
+<section id="dash" class="hidden"></section></div><div id="net" class="notice">READY</div><div class="footer">MISSION LIFELINE V11 MISSION CONTROL</div>
+<script type="module">
+import { firebaseConfig, gameMasterEmail } from "./firebase-config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
+
+const $=id=>document.getElementById(id),TEAMS=["ALPHA","BRAVO","CHARLIE","DELTA","ECHO","FOXTROT"];
+let db,auth,user=null,priv=null,states={},global={};
+const DEFAULT={
+ teams:{ALPHA:"3817",BRAVO:"6042",CHARLIE:"9153",DELTA:"2478",ECHO:"5361",FOXTROT:"8294"},
+ cores:[
+  {name:"NAVIGATION CORE",message:"Löst die physische Aufgabe vor Ort und gebt anschließend den Code ein."},
+  {name:"LIFELINE CORE",message:"Arbeitet als Team und sichert den nächsten Zugangscode."},
+  {name:"STABILITY CORE",message:"Die Systemstabilität ist kritisch. Löst die Aufgabe und übermittelt den Code."},
+  {name:"BREACH CORE",message:"Absolviert die physische Mission und gebt anschließend den Code ein."},
+  {name:"TRANSFER CORE",message:"Löst die Aufgabe an eurem Einsatzort und bestätigt den Code."},
+  {name:"VELOCITY CORE",message:"Absolviert die finale physische Herausforderung."}
+ ],
+ routes:{ALPHA:[0,1,2,3,4,5],BRAVO:[1,2,3,4,5,0],CHARLIE:[2,3,4,5,0,1],DELTA:[3,4,5,0,1,2],ECHO:[4,5,0,1,2,3],FOXTROT:[5,0,1,2,3,4]},
+ answers:{ALPHA:["1","32","12","25","6","8"],BRAVO:["1","32","12","25","6","8"],CHARLIE:["1","32","12","25","6","8"],DELTA:["1","32","12","25","6","8"],ECHO:["1","32","12","25","6","8"],FOXTROT:["1","32","12","25","6","8"]},
+ fragments:{ALPHA:["N7","L4","S2","B9","T3","V5"],BRAVO:["N7","L4","S2","B9","T3","V5"],CHARLIE:["N7","L4","S2","B9","T3","V5"],DELTA:["N7","L4","S2","B9","T3","V5"],ECHO:["N7","L4","S2","B9","T3","V5"],FOXTROT:["N7","L4","S2","B9","T3","V5"]},
+ finals:{ALPHA:"LIFE-A1",BRAVO:"LIFE-B2",CHARLIE:"LIFE-C3",DELTA:"LIFE-D4",ECHO:"LIFE-E5",FOXTROT:"LIFE-F6"},
+ hints:[
+  ["Beobachtet zuerst das System der Aufgabe, bevor ihr handelt.","Teilt Rollen im Team auf und prüft, welcher Schritt euch dem Ziel näherbringt.","Konzentriert euch auf die Reihenfolge und überprüft eure bisherige Annahme."],
+  ["Nicht jede Information ist gleich wichtig. Sucht nach dem entscheidenden Muster.","Arbeitet parallel: Ein Teil des Teams beobachtet, der andere testet vorsichtig.","Überprüft, ob sich aus Position, Anzahl oder Reihenfolge ein eindeutiger Hinweis ergibt."],
+  ["Stabilität entsteht durch klare Absprachen und kleine kontrollierte Schritte.","Verändert immer nur eine Sache gleichzeitig und beobachtet die Wirkung.","Nutzt eure Ressourcen so, dass Belastung und Gewicht möglichst gleichmäßig verteilt sind."],
+  ["Plant den Weg vollständig, bevor die erste Person startet.","Achtet auf sichere Übergaben und feste Kommunikationssignale.","Der Schlüssel liegt in der gemeinsamen Bewegung, nicht in Einzelaktionen."],
+  ["Denkt an einen verlustarmen Transfer vom Start bis zum Ziel.","Prüft, wo Material oder Information unterwegs verloren gehen kann.","Ordnet eure Rollen entlang des gesamten Transferwegs und schließt Lücken."],
+  ["Geschwindigkeit hilft nur, wenn der Ablauf vorher klar ist.","Optimiert erst euren Prozess und startet dann den schnellen Versuch.","Legt eine feste Reihenfolge fest und vermeidet unnötige Wechsel oder Wege."]
+ ]
+};
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+async function sha(text){const data=new TextEncoder().encode(String(text));const d=await crypto.subtle.digest("SHA-256",data);return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("")}
+async function publicFrom(p){const answerHashes={},finalHashes={};for(const n of TEAMS){answerHashes[n]=[];for(const a of p.answers[n])answerHashes[n].push(await sha(String(a).toUpperCase()));finalHashes[n]=await sha(String(p.finals[n]).toUpperCase())}return {teamPins:p.teams,cores:p.cores,routes:p.routes,answerHashes,fragments:p.fragments,finalHashes,hints:p.hints||DEFAULT.hints}}
+function empty(runId){return {runId,started:false,step:0,done:[],fragments:[],hints:0,hintUsage:{},penalty:0,online:false,lastUpdate:0}}
+async function boot(){const app=initializeApp(firebaseConfig);db=getDatabase(app);auth=getAuth(app);onAuthStateChanged(auth,u=>{user=u;if(u&&u.email===gameMasterEmail)attach()})}
+async function loginGM(){try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){$("loginMsg").innerHTML='<div class="terminal red">'+esc(e.code||e.message)+'</div>'}}
+let attached=false;
+function attach(){if(attached)return;attached=true;$("login").classList.add("hidden");$("dash").classList.remove("hidden");onValue(ref(db,"mission/privateConfig"),async s=>{priv=s.val();if(!priv){renderInit();return}if(!Array.isArray(priv.hints)){const p=JSON.parse(JSON.stringify(priv));p.hints=JSON.parse(JSON.stringify(DEFAULT.hints));priv=p;await set(ref(db,"mission/privateConfig"),p);await set(ref(db,"mission/publicConfig"),await publicFrom(p));return}render()});onValue(ref(db,"mission/teams"),s=>{states=s.val()||{};render()});onValue(ref(db,"mission/globalState"),s=>{global=s.val()||{};render()})}
+function renderInit(){$("dash").innerHTML='<div class="card hero"><div class="title">&gt;&gt; FIRST START</div><button id="init" class="primary">INITIALIZE MISSION</button></div>';$("init").onclick=initialize}
+async function initialize(){const p=JSON.parse(JSON.stringify(DEFAULT)),pub=await publicFrom(p),runId=Date.now(),all={};TEAMS.forEach(n=>all[n]=empty(runId));await set(ref(db,"mission/privateConfig"),p);await set(ref(db,"mission/publicConfig"),pub);await set(ref(db,"mission/globalState"),{runId,countdownStartedAt:0,countdownSeconds:10});for(const n of TEAMS)await set(ref(db,"mission/teams/"+n),all[n])}
+function st(n){return states[n]||empty(global.runId||0)}function idx(n){const s=st(n),r=priv.routes[n];return s.step<r.length?r[s.step]:null}
+function render(){if(!priv)return;const online=TEAMS.filter(n=>st(n).online).length;$("dash").innerHTML=`${online===6?'<div class="card hero global"><div class="title">6 / 6 ONLINE</div><div class="big">GLOBAL LIFELINE READY</div></div>':""}<div class="card hero"><div class="title">LIVE MISSION CONTROL</div><div class="terminal">FIELD UNITS ONLINE: ${online} / 6</div></div><div class="grid" style="margin-top:14px">${TEAMS.map(n=>{const s=st(n),i=idx(n),c=i===null?null:priv.cores[i];return `<div class="card ${s.online?"online-card":""}"><div class="row"><div class="title">${n}</div><div style="flex:0"><span class="live-dot ${s.online?"on":""}"></span></div></div><div class="${s.online?"online":"muted"}" style="font-size:20px;font-weight:900">${s.online?"ONLINE":s.started?"ACTIVE":"OFFLINE"}</div><p>${s.step}/6 • ${c?esc(c.name):"FINAL ACCESS"}</p><div class="progress"><div style="width:${s.step/6*100}%"></div></div><p class="small muted">Hints: ${s.hints||0} • Penalty: ${s.penalty||0}</p><div class="row"><button data-next="${n}">FORCE NEXT</button><button data-reset="${n}" class="danger">RESET TEAM</button></div></div>`}).join("")}</div>
+<div class="card" style="margin-top:14px"><div class="title">NEW MISSION / COUNTDOWN</div><label>Countdown Sekunden</label><input id="cd" type="number" min="3" max="60" value="${global.countdownSeconds||10}"><button id="newMission" class="primary">START NEW MISSION / RESET ALL</button></div>
+<div class="card" style="margin-top:14px"><div class="title">TEAM CODES</div>${TEAMS.map(n=>`<div class="core"><b>${n}</b><input id="pin_${n}" value="${esc(priv.teams[n])}" maxlength="4"></div>`).join("")}<button id="savePins">SAVE TEAM CODES</button></div>
+<div class="card" style="margin-top:14px"><div class="title">WECHSELMATRIX</div><div style="overflow:auto"><table class="matrix-table"><thead><tr><th>TEAM</th>${[1,2,3,4,5,6].map(i=>`<th>POS ${i}</th>`).join("")}</tr></thead><tbody>${TEAMS.map(n=>`<tr><th>${n}</th>${priv.routes[n].map((v,p)=>`<td><select id="r_${n}_${p}">${priv.cores.map((c,i)=>`<option value="${i}" ${i===v?"selected":""}>${esc(c.name)}</option>`).join("")}</select></td>`).join("")}</tr>`).join("")}</tbody></table></div><button id="saveRoutes">SAVE MATRIX</button></div>
+<div class="card" style="margin-top:14px"><div class="title">TEAM SOLUTIONS</div><div style="overflow:auto"><table class="matrix-table"><thead><tr><th>TEAM</th>${priv.cores.map(c=>`<th>${esc(c.name)}</th>`).join("")}</tr></thead><tbody>${TEAMS.map(n=>`<tr><th>${n}</th>${priv.answers[n].map((v,i)=>`<td><input id="a_${n}_${i}" value="${esc(v)}"></td>`).join("")}</tr>`).join("")}</tbody></table></div><button id="saveAnswers">SAVE SOLUTIONS</button></div>
+<div class="card" style="margin-top:14px"><div class="title">TEAM FRAGMENTS</div><div style="overflow:auto"><table class="matrix-table"><thead><tr><th>TEAM</th>${priv.cores.map(c=>`<th>${esc(c.name)}</th>`).join("")}</tr></thead><tbody>${TEAMS.map(n=>`<tr><th>${n}</th>${priv.fragments[n].map((v,i)=>`<td><input id="f_${n}_${i}" value="${esc(v)}"></td>`).join("")}</tr>`).join("")}</tbody></table></div><button id="saveFragments">SAVE FRAGMENTS</button></div>
+<div class="card" style="margin-top:14px"><div class="title">FINAL CODES</div>${TEAMS.map(n=>`<div class="core"><b>${n}</b><input id="fin_${n}" value="${esc(priv.finals[n])}"></div>`).join("")}<button id="saveFinals">SAVE FINAL CODES</button></div>
+<div class="card" style="margin-top:14px"><div class="title">CORE MESSAGES</div>${priv.cores.map((c,i)=>`<div class="core"><b>CORE ${i+1}</b><label>Name</label><input id="cn_${i}" value="${esc(c.name)}"><label>System Message</label><textarea id="cm_${i}">${esc(c.message)}</textarea></div>`).join("")}<button id="saveCores">SAVE CORES</button></div>
+<div class="card" style="margin-top:14px"><div class="title">AUTARKE STATIONSHINWEISE</div><p class="small muted">Pro Station können drei Hinweisstufen vorbereitet werden. Die Teams rufen sie selbstständig nacheinander ab; Mission Control muss dafür nicht besetzt sein.</p>${priv.cores.map((c,i)=>`<div class="core"><b>${esc(c.name)} // HINWEISE</b>${[0,1,2].map(h=>`<label>Hinweis ${h+1}</label><textarea id="h_${i}_${h}">${esc((priv.hints||DEFAULT.hints)[i]?.[h]||"")}</textarea>`).join("")}</div>`).join("")}<button id="saveHints" class="primary">SAVE STATION HINTS</button></div>`;
+document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>forceNext(b.dataset.next));document.querySelectorAll("[data-reset]").forEach(b=>b.onclick=()=>resetTeam(b.dataset.reset));$("newMission").onclick=newMission;$("savePins").onclick=savePins;$("saveRoutes").onclick=saveRoutes;$("saveAnswers").onclick=saveAnswers;$("saveFragments").onclick=saveFragments;$("saveFinals").onclick=saveFinals;$("saveCores").onclick=saveCores;$("saveHints").onclick=saveHints}
+async function sync(p){priv=p;await set(ref(db,"mission/privateConfig"),p);await set(ref(db,"mission/publicConfig"),await publicFrom(p))}
+async function newMission(){if(!confirm("Neue Mission starten und alle Teams zurücksetzen?"))return;const runId=Date.now(),all={};TEAMS.forEach(n=>all[n]=empty(runId));for(const n of TEAMS)await set(ref(db,"mission/teams/"+n),all[n]);await set(ref(db,"mission/globalState"),{runId,countdownStartedAt:0,countdownSeconds:Math.max(3,Number($("cd").value||10))});alert("Neue Mission gestartet.")}
+async function savePins(){const p=JSON.parse(JSON.stringify(priv)),vals=TEAMS.map(n=>$("pin_"+n).value.trim());if(vals.some(v=>!/^[0-9]{4}$/.test(v))||new Set(vals).size!==6){alert("Codes müssen eindeutig und 4-stellig sein.");return}TEAMS.forEach((n,i)=>p.teams[n]=vals[i]);await sync(p)}
+async function saveRoutes(){const p=JSON.parse(JSON.stringify(priv));for(const n of TEAMS){const a=[0,1,2,3,4,5].map(i=>Number($("r_"+n+"_"+i).value));if(new Set(a).size!==6){alert("Jeder Core muss genau einmal vorkommen.");return}p.routes[n]=a}await sync(p)}
+async function saveAnswers(){const p=JSON.parse(JSON.stringify(priv));TEAMS.forEach(n=>p.answers[n]=p.cores.map((_,i)=>$("a_"+n+"_"+i).value.trim()));await sync(p)}
+async function saveFragments(){const p=JSON.parse(JSON.stringify(priv));TEAMS.forEach(n=>p.fragments[n]=p.cores.map((_,i)=>$("f_"+n+"_"+i).value.trim()));await sync(p)}
+async function saveFinals(){const p=JSON.parse(JSON.stringify(priv));TEAMS.forEach(n=>p.finals[n]=$("fin_"+n).value.trim());await sync(p)}
+async function saveCores(){const p=JSON.parse(JSON.stringify(priv));p.cores=p.cores.map((c,i)=>({name:$("cn_"+i).value.trim(),message:$("cm_"+i).value.trim()}));await sync(p)}
+async function saveHints(){const p=JSON.parse(JSON.stringify(priv));p.hints=p.cores.map((_,i)=>[0,1,2].map(h=>$("h_"+i+"_"+h).value.trim()));await sync(p);alert("Stationshinweise gespeichert.")}
+async function forceNext(n){const s=st(n),i=idx(n);if(i===null)return;const done=[...(s.done||[])];if(!done.includes(i))done.push(i);await update(ref(db,"mission/teams/"+n),{step:s.step+1,done,fragments:[...(s.fragments||[]),priv.fragments[n][i]],lastUpdate:serverTimestamp()})}
+async function resetTeam(n){if(confirm("Team "+n+" zurücksetzen?"))await set(ref(db,"mission/teams/"+n),empty(global.runId||Date.now()))}
+$("loginBtn").onclick=loginGM;function tick(){$("clock").textContent=new Date().toLocaleTimeString("de-DE")}tick();setInterval(tick,1000);
+
+function startMatrix(){
+ const c=document.getElementById("matrix"),x=c.getContext("2d"),chars="01アイウエオABCDEFGHIJKLMNOPQRSTUVWXYZ#$%",size=15;let drops=[];
+ function resize(){c.width=innerWidth;c.height=innerHeight;drops=Array(Math.max(1,Math.floor(c.width/size))).fill(1)}
+ resize();addEventListener("resize",resize);
+ function f(){x.fillStyle="rgba(1,3,1,.10)";x.fillRect(0,0,c.width,c.height);x.fillStyle="#00ff66";x.font=size+"px monospace";drops.forEach((y,i)=>{x.fillText(chars[Math.floor(Math.random()*chars.length)],i*size,y*size);if(y*size>c.height&&Math.random()>.975)drops[i]=0;drops[i]++});requestAnimationFrame(f)}f()
+}
+
+startMatrix();boot();
+</script></body></html>
